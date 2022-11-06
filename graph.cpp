@@ -7,7 +7,7 @@ Graph::Graph()
 
 void Graph::addNode(Node* node)
 {
-    m_nodes.push_back(node);
+    m_nodes.insert(node);
     updateAdjacencyMatrix();
 }
 
@@ -34,7 +34,7 @@ Node* Graph::getNodeAt(QPointF pos) {
     return nullptr;
 }
 
-std::vector<Node*> Graph::getNodes() const
+std::unordered_set<Node*> Graph::getNodes() const
 {
     return m_nodes;
 }
@@ -78,7 +78,7 @@ void Graph::updateAdjacencyMatrix()
     int size = getNumberOfNodes();
     m_adjacencyMatrix = std::vector<std::vector<int>>(size, std::vector<int>(size));
 
-    for (Edge &edge : m_edges) {
+    for (const Edge &edge : m_edges) {
         m_adjacencyMatrix[edge.getFirstNode()->getInfo() - 1][edge.getSecondNode()->getInfo() - 1] = 1;
     }
 

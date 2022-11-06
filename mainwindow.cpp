@@ -61,13 +61,13 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *ev)
 
 void MainWindow::paintNodes(QPainter &p)
 {
-    std::vector<Node*> nodes = graph.getNodes();
+    std::unordered_set<Node*> nodes = graph.getNodes();
     QPen pen;
     pen.setColor(Qt::black);
     pen.setWidth(3);
     p.setPen(pen);
 
-    for (Node* n : nodes) {
+    for (const Node* n : nodes) {
         QPointF coord = n->getCoordinate();
         QRect r(coord.x() - Node::radius,
                 coord.y() - Node::radius,
@@ -87,7 +87,7 @@ void MainWindow::paintEdges(QPainter &p)
     pen.setWidth(2);
     p.setPen(pen);
 
-    for (Edge &e : edges) {
+    for (const Edge &e : edges) {
         QLineF line(e.getFirstNode()->getCoordinate(), e.getSecondNode()->getCoordinate());
         line.setLength(line.length() - 10);
         line.setP1(line.p1() + e.getSecondNode()->getCoordinate() - line.p2());
