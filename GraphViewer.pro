@@ -30,4 +30,8 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 DISTFILES += \
-    AdjacencyMatrix.txt
+    AdjacencyMatrix.txt \
+    GraphViewer.ico
+
+RESOURCES += \
+    Resources.qrc

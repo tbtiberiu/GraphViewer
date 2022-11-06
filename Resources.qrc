@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file>GraphViewer.ico</file>
+    </qresource>
+</RCC>
