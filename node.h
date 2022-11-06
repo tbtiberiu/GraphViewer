@@ -13,6 +13,10 @@ public:
     static float getDistance(const Node &nodeA, const Node &nodeB);
     friend bool operator==(const Node &nodeA, const Node &nodeB);
 
+public:
+    static const int radius = 12;
+    static const int blockedRadius = radius + 10;
+
 private:
     int m_info;
     QPointF m_coord;

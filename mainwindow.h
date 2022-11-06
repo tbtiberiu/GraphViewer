@@ -18,11 +18,12 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     void mousePressEvent(QMouseEvent *ev);
+    void mouseMoveEvent(QMouseEvent *ev);
     void mouseReleaseEvent(QMouseEvent *ev);
     void paintEvent(QPaintEvent *p);
+    void paintNodes(QPainter &p);
+    void paintEdges(QPainter &p);
     ~MainWindow();
-    const int nodeRadius = 10;
-    const int blockedRadius = nodeRadius + 10;
 
 private slots:
     void on_orientatButton_clicked();
@@ -32,7 +33,8 @@ private:
     Graph graph;
     Ui::MainWindow *ui;
 
-    bool isFirstNode;
-    Node firstNode;
-    QPointF mousePosWhenPressed = {0, 0};
+    Qt::MouseButton pressedButton;
+    Node *firstSelectedNode = nullptr;
+    Node *selectedNode = nullptr;
+    bool mouseMoved = false;
 };

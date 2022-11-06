@@ -3,30 +3,29 @@
 #include <QTextStream>
 #include "edge.h"
 
-using namespace std;
 class Graph
 {
 public:
     Graph();
-    void addNode(Node node);
+    void addNode(Node* node);
     void addEdge(Edge edge);
     int getNumberOfNodes() const;
-    vector<Node> getNodes() const;
-    vector<Edge> getEdges() const;
-    vector<vector<int>> getAdjacencyMatrix() const;
+    Node *getNodeAt(QPointF pos);
+    std::vector<Node*> getNodes() const;
+    std::vector<Edge> getEdges() const;
+    std::vector<std::vector<int>> getAdjacencyMatrix() const;
     bool hasEdge(Edge edge) const;
     bool isOriented() const;
     void setOrientation(bool orientation);
-    void moveNode(int nodeName, QPointF coord);
+    void moveNode(Node *node, QPointF pos);
     void updateAdjacencyMatrix();
     void saveAdjacencyMatrix(
         QString filename
         = "C:\\Users\\tibin\\Documents\\UNITBV\\AG\\GraphViewer\\AdjacencyMatrix.txt") const;
-    int nodeAtCoord(QPointF coord, int radius) const;
 
 private:
     bool oriented = true;
-    vector<Node> m_nodes;
-    vector<Edge> m_edges;
-    vector<vector<int>> m_adjacencyMatrix;
+    std::vector<Node*> m_nodes;
+    std::vector<Edge> m_edges;
+    std::vector<std::vector<int>> m_adjacencyMatrix;
 };

@@ -5,30 +5,20 @@ Edge::Edge()
     // empty
 }
 
-Edge::Edge(Node firstNode, Node secondNode)
+Edge::Edge(Node *firstNode, Node *secondNode)
 {
     m_firstNode = firstNode;
     m_secondNode = secondNode;
 }
 
-Node Edge::getFirstNode() const
+Node* Edge::getFirstNode() const
 {
     return m_firstNode;
 }
 
-Node Edge::getSecondNode() const
+Node* Edge::getSecondNode() const
 {
     return m_secondNode;
-}
-
-void Edge::updateFirstNode(QPointF coord)
-{
-    m_firstNode.setCoord(coord);
-}
-
-void Edge::updateSecondNode(QPointF coord)
-{
-    m_secondNode.setCoord(coord);
 }
 
 bool operator==(const Edge &edgeA, const Edge &edgeB)

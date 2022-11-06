@@ -6,95 +6,101 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    isFirstNode = false;
 }
 
-void MainWindow::mousePressEvent(QMouseEvent *ev) {
-    mousePosWhenPressed = ev->pos();
+MainWindow::~MainWindow()
+{
+    delete ui;
+}
+
+void MainWindow::mousePressEvent(QMouseEvent *ev)
+{
+    selectedNode = graph.getNodeAt(ev->pos());
+    pressedButton = ev->button();
+    mouseMoved = false;
+}
+
+void MainWindow::mouseMoveEvent(QMouseEvent *ev)
+{
+    if (pressedButton == Qt::RightButton) {
+        if (selectedNode != nullptr && graph.getNodeAt(ev->pos()) == nullptr) {
+            graph.moveNode(selectedNode, ev->pos());
+        }
+    }
+    mouseMoved = true;
+    update();
 }
 
 void MainWindow::mouseReleaseEvent(QMouseEvent *ev)
 {
-    if (ev->button() == Qt::RightButton && ev->pos() == mousePosWhenPressed) {
-        QPointF coordN = ev->pos();
-        Node n(coordN);
-
-        if (graph.nodeAtCoord(ev->pos(), blockedRadius))
-            return;
-
-        n.setInfo(graph.getNumberOfNodes() + 1);
+    QPointF currentPosition = ev->pos();
+    if (ev->button() == Qt::RightButton && selectedNode == nullptr && !mouseMoved) {
+        Node* n = new Node(currentPosition, graph.getNumberOfNodes() + 1);
         graph.addNode(n);
-        update();
-    } else if (ev->button() == Qt::RightButton)  {
-        int nodeNum = graph.nodeAtCoord(mousePosWhenPressed, blockedRadius);
-        graph.moveNode(nodeNum, ev->pos());
-        isFirstNode = false;
-        update();
     } else if (ev->button() == Qt::LeftButton) {
-        vector<Node> nodes = graph.getNodes();
-        Node selected;
-        bool ok = false;
-        for (Node &n : nodes) {
-            float dist = Node::getDistance(n, Node(ev->pos()));
+        if (selectedNode == nullptr)
+            return;
 
-            if (dist <= nodeRadius) {
-                selected = n;
-                ok = true;
-                break;
-            }
-        }
-
-        if (!ok) {
-            isFirstNode = false;
+        if (firstSelectedNode == nullptr) {
+            firstSelectedNode = selectedNode;
             return;
         }
 
-        if (!isFirstNode) {
-            firstNode = selected;
-            isFirstNode = true;
-        } else {
-            if (firstNode == selected)
-                return;
+        if (firstSelectedNode == selectedNode)
+            return;
 
-            graph.addEdge(Edge(firstNode, selected));
-            if (!graph.isOriented())
-                graph.addEdge(Edge(selected, firstNode));
+        graph.addEdge(Edge(firstSelectedNode, selectedNode));
+        if (!graph.isOriented())
+            graph.addEdge(Edge(selectedNode, firstSelectedNode));
+        firstSelectedNode = nullptr;
+    }
 
-            isFirstNode = false;
-            update();
-        }
+    selectedNode = nullptr;
+    update();
+}
+
+void MainWindow::paintNodes(QPainter &p)
+{
+    std::vector<Node*> nodes = graph.getNodes();
+    QPen pen;
+    pen.setColor(Qt::black);
+    pen.setWidth(3);
+    p.setPen(pen);
+
+    for (Node* n : nodes) {
+        QPointF coord = n->getCoordinate();
+        QRect r(coord.x() - Node::radius,
+                coord.y() - Node::radius,
+                2 * Node::radius,
+                2 * Node::radius);
+        p.drawEllipse(r);
+        QString num = QString::number(n->getInfo());
+        p.drawText(r, Qt::AlignCenter, num);
     }
 }
 
-void MainWindow::paintEvent(QPaintEvent *)
+void MainWindow::paintEdges(QPainter &p)
 {
-    QPainter p(this);
-    vector<Node> nodes = graph.getNodes();
-    for (Node &n : nodes) {
-        QPointF coord = n.getCoordinate();
-        QRect r(coord.x() - nodeRadius, coord.y() - nodeRadius, 2 * nodeRadius, 2 * nodeRadius);
-        QPen pen;
-        pen.setColor(Qt::red);
-        p.setPen(pen);
-        p.drawEllipse(r);
-        QString num = QString::number(n.getInfo());
-        p.drawText(r, Qt::AlignCenter, num);
-    }
-    vector<Edge> edges = graph.getEdges();
-    int arrowSize = 15;
+    std::vector<Edge> edges = graph.getEdges();
+    QPen pen;
+    pen.setColor(Qt::darkGreen);
+    pen.setWidth(2);
+    p.setPen(pen);
 
     for (Edge &e : edges) {
-        QLineF line(e.getFirstNode().getCoordinate(), e.getSecondNode().getCoordinate());
+        QLineF line(e.getFirstNode()->getCoordinate(), e.getSecondNode()->getCoordinate());
+        line.setLength(line.length() - 10);
+        line.setP1(line.p1() + e.getSecondNode()->getCoordinate() - line.p2());
         p.drawLine(line);
 
         if (graph.isOriented()) {
             double angle = atan2(line.dy(), -line.dx());
             QPointF arrowP1 = line.p2()
-                              + QPointF(sin(angle + M_PI / 3) * arrowSize,
-                                        cos(angle + M_PI / 3) * arrowSize);
+                              + QPointF(sin(angle + M_PI / 3) * Edge::arrowSize,
+                                        cos(angle + M_PI / 3) * Edge::arrowSize);
             QPointF arrowP2 = line.p2()
-                              + QPointF(sin(angle + M_PI - M_PI / 3) * arrowSize,
-                                        cos(angle + M_PI - M_PI / 3) * arrowSize);
+                              + QPointF(sin(angle + M_PI - M_PI / 3) * Edge::arrowSize,
+                                        cos(angle + M_PI - M_PI / 3) * Edge::arrowSize);
 
             p.drawLine(line.p2(), arrowP1);
             p.drawLine(line.p2(), arrowP2);
@@ -102,9 +108,11 @@ void MainWindow::paintEvent(QPaintEvent *)
     }
 }
 
-MainWindow::~MainWindow()
+void MainWindow::paintEvent(QPaintEvent *)
 {
-    delete ui;
+    QPainter p(this);
+    paintNodes(p);
+    paintEdges(p);
 }
 
 void MainWindow::on_orientatButton_clicked()
