@@ -2,11 +2,19 @@
 
 Node::Node(int info)
 {
+    int r = 158 + QRandomGenerator::global()->bounded(-60, 41);
+    int g = 187 + QRandomGenerator::global()->bounded(-60, 41);
+    int b = 232 + QRandomGenerator::global()->bounded(-30, 11);
+    m_color = QColor(r, g, b);
     m_info = info;
 }
 
 Node::Node(QPointF coord, int info)
 {
+    int r = 158 + QRandomGenerator::global()->bounded(-60, 41);
+    int g = 187 + QRandomGenerator::global()->bounded(-60, 41);
+    int b = 232 + QRandomGenerator::global()->bounded(-30, 11);
+    m_color = QColor(r, g, b);
     m_coord = coord;
     m_info = info;
 }
@@ -19,6 +27,10 @@ QPointF Node::getCoordinate() const
 int Node::getInfo() const
 {
     return m_info;
+}
+
+QColor Node::getColor() const {
+    return m_color;
 }
 
 void Node::setInfo(int info)

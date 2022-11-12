@@ -1,11 +1,34 @@
 #include "mainwindow.h"
 #include <QDrag>
+#include <QInputDialog>
+#include <QPainterPath>
+#include <math.h>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
+    bool ok;
+    n = QInputDialog::getInt(this, tr("GraphViewer"), tr("Number of nodes:"), 5, 0, 40, 1, &ok);
+    if (!ok)
+        return;
+    nPaths = QInputDialog::getInt(this, tr("GraphViewer"), tr("Number of paths:"), 1, 0, 20, 1, &ok);
+    if (!ok)
+        return;
+    nCycles = QInputDialog::getInt(this, tr("GraphViewer"), tr("Number of cycles:"), 1, 0, 20, 1, &ok);
+    if (!ok)
+        return;
+
+    graph.generateRandomNodes(n);
+    graph.generateElementaryCycles(nPaths);
+    graph.generateElementaryCycles(nCycles);
+    graph.saveChangesToFile();
+
+    n = 0;
+    nPaths = 0;
+    nCycles = 0;
 }
 
 MainWindow::~MainWindow()
@@ -15,17 +38,16 @@ MainWindow::~MainWindow()
 
 void MainWindow::mousePressEvent(QMouseEvent *ev)
 {
-    selectedNode = graph.getNodeAt(ev->pos());
+    selectedNode = graph.getNodeAt(ev->position());
     pressedButton = ev->button();
     mouseMoved = false;
 }
 
 void MainWindow::mouseMoveEvent(QMouseEvent *ev)
 {
-    if (pressedButton == Qt::RightButton) {
-        if (selectedNode != nullptr && graph.getNodeAt(ev->pos()) == nullptr) {
-            graph.moveNode(selectedNode, ev->pos());
-        }
+    if (pressedButton == Qt::RightButton && selectedNode != nullptr
+        && graph.getNodeAt(ev->position()) == nullptr) {
+        graph.moveNode(selectedNode, ev->position());
     }
     mouseMoved = true;
     update();
@@ -33,9 +55,9 @@ void MainWindow::mouseMoveEvent(QMouseEvent *ev)
 
 void MainWindow::mouseReleaseEvent(QMouseEvent *ev)
 {
-    QPointF currentPosition = ev->pos();
+    QPointF currentPosition = ev->position();
     if (ev->button() == Qt::RightButton && selectedNode == nullptr && !mouseMoved) {
-        Node* n = new Node(currentPosition, graph.getNumberOfNodes() + 1);
+        Node *n = new Node(currentPosition, graph.getNodesCount() + 1);
         graph.addNode(n);
     } else if (ev->button() == Qt::LeftButton) {
         if (selectedNode == nullptr)
@@ -61,14 +83,15 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *ev)
 
 void MainWindow::paintNodes(QPainter &p)
 {
-    std::unordered_set<Node*> nodes = graph.getNodes();
+    std::vector<Node *> nodes = graph.getNodes();
     QPen pen;
-    pen.setColor(Qt::black);
-    pen.setWidth(3);
+    pen.setColor(Qt::white);
+    pen.setWidth(2);
     p.setPen(pen);
 
-    for (const Node* n : nodes) {
+    for (const Node *n : nodes) {
         QPointF coord = n->getCoordinate();
+        p.setBrush(Qt::black);
         QRect r(coord.x() - Node::radius,
                 coord.y() - Node::radius,
                 2 * Node::radius,
@@ -82,14 +105,15 @@ void MainWindow::paintNodes(QPainter &p)
 void MainWindow::paintEdges(QPainter &p)
 {
     std::vector<Edge> edges = graph.getEdges();
-    QPen pen;
-    pen.setColor(Qt::darkGreen);
-    pen.setWidth(2);
-    p.setPen(pen);
 
     for (const Edge &e : edges) {
+        QPen pen;
+        pen.setColor(e.getFirstNode()->getColor());
+        pen.setWidth(2);
+        p.setPen(pen);
+
         QLineF line(e.getFirstNode()->getCoordinate(), e.getSecondNode()->getCoordinate());
-        line.setLength(line.length() - 10);
+        line.setLength(line.length() - Node::radius - 3);
         line.setP1(line.p1() + e.getSecondNode()->getCoordinate() - line.p2());
         p.drawLine(line);
 
@@ -111,8 +135,8 @@ void MainWindow::paintEdges(QPainter &p)
 void MainWindow::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
-    paintNodes(p);
     paintEdges(p);
+    paintNodes(p);
 }
 
 void MainWindow::on_orientatButton_clicked()
@@ -126,3 +150,48 @@ void MainWindow::on_neorientatButton_clicked()
     graph.setOrientation(false);
     update();
 }
+
+void MainWindow::on_nodesSpin_valueChanged(int val)
+{
+    n = val;
+}
+
+
+void MainWindow::on_pathsSpin_valueChanged(int val)
+{
+    nPaths = val;
+}
+
+
+void MainWindow::on_cyclesSpin_valueChanged(int val)
+{
+    nCycles = val;
+}
+
+
+void MainWindow::on_nodesButton_clicked()
+{
+    graph.generateRandomNodes(n);
+    update();
+}
+
+
+void MainWindow::on_pathsButton_clicked()
+{
+    graph.generateElementaryPaths(nPaths);
+    update();
+}
+
+
+void MainWindow::on_cyclesButton_clicked()
+{
+    graph.generateElementaryCycles(nCycles);
+    update();
+}
+
+
+void MainWindow::on_saveButton_clicked()
+{
+    graph.saveChangesToFile();
+}
+

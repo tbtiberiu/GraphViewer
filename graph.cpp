@@ -5,10 +5,11 @@ Graph::Graph()
     // empty
 }
 
-void Graph::addNode(Node* node)
+void Graph::addNode(Node *node)
 {
-    m_nodes.insert(node);
+    m_nodes.push_back(node);
     updateAdjacencyMatrix();
+    m_nodesCount++;
 }
 
 void Graph::addEdge(Edge edge)
@@ -20,21 +21,22 @@ void Graph::addEdge(Edge edge)
     updateAdjacencyMatrix();
 }
 
-int Graph::getNumberOfNodes() const
+int Graph::getNodesCount() const
 {
-    return (int) m_nodes.size();
+    return m_nodesCount;
 }
 
-Node* Graph::getNodeAt(QPointF pos) {
+Node *Graph::getNodeAt(QPointF pos)
+{
     Node n(pos);
 
-    for (Node* nn : m_nodes)
+    for (Node *nn : m_nodes)
         if (Node::getDistance(n, *nn) < Node::blockedRadius)
             return nn;
     return nullptr;
 }
 
-std::unordered_set<Node*> Graph::getNodes() const
+std::vector<Node *> Graph::getNodes() const
 {
     return m_nodes;
 }
@@ -42,11 +44,6 @@ std::unordered_set<Node*> Graph::getNodes() const
 std::vector<Edge> Graph::getEdges() const
 {
     return m_edges;
-}
-
-std::vector<std::vector<int>> Graph::getAdjacencyMatrix() const
-{
-    return m_adjacencyMatrix;
 }
 
 bool Graph::hasEdge(Edge edge) const
@@ -59,15 +56,16 @@ bool Graph::hasEdge(Edge edge) const
 
 bool Graph::isOriented() const
 {
-    return oriented;
+    return m_oriented;
 }
 
-void Graph::setOrientation(bool orientation)
+void Graph::setOrientation(bool orientated)
 {
-    oriented = orientation;
+    m_oriented = orientated;
 }
 
-void Graph::moveNode(Node* node, QPointF pos) {
+void Graph::moveNode(Node *node, QPointF pos)
+{
     if (node == nullptr)
         return;
     node->setCoord(pos);
@@ -75,17 +73,16 @@ void Graph::moveNode(Node* node, QPointF pos) {
 
 void Graph::updateAdjacencyMatrix()
 {
-    int size = getNumberOfNodes();
-    m_adjacencyMatrix = std::vector<std::vector<int>>(size, std::vector<int>(size));
+    int size = getNodesCount();
+    m_adjacencyMatrix = std::vector<std::vector<bool>>(size, std::vector<bool>(size));
 
     for (const Edge &edge : m_edges) {
-        m_adjacencyMatrix[edge.getFirstNode()->getInfo() - 1][edge.getSecondNode()->getInfo() - 1] = 1;
+        m_adjacencyMatrix[edge.getFirstNode()->getInfo() - 1][edge.getSecondNode()->getInfo() - 1]
+            = true;
     }
-
-    saveAdjacencyMatrix();
 }
 
-void Graph::saveAdjacencyMatrix(QString filename) const
+void Graph::saveChangesToFile(QString filename)
 {
     QFile file(filename);
 
@@ -93,6 +90,8 @@ void Graph::saveAdjacencyMatrix(QString filename) const
         return;
 
     QTextStream stream(&file);
+    stream << "Nodes count: " << m_nodesCount << "\n\n";
+    updateAdjacencyMatrix();
     stream << "Adjacency matrix:\n";
     for (auto &row : m_adjacencyMatrix) {
         for (int val : row) {
@@ -100,6 +99,122 @@ void Graph::saveAdjacencyMatrix(QString filename) const
         }
         stream << "\n";
     }
+    stream << "\n";
+
+    stream << "Paths:\n";
+    for (auto &path : m_paths) {
+        size_t i = 0;
+        for (; i < path.size() - 1; i++) {
+            stream << path[i] << ", ";
+        }
+        stream << path[i] << "\n";
+    }
+    stream << "\n";
+
+    stream << "Cycles:\n";
+    for (auto &cycle : m_cycles) {
+        size_t i = 0;
+        for (; i < cycle.size() - 1; i++) {
+            stream << cycle[i] << ", ";
+        }
+        stream << cycle[i] << "\n";
+    }
+    stream << "\n";
+
+    stream << "Adjacency list:\n";
+    for (size_t i = 0; i < m_adjacencyMatrix.size(); i++) {
+        stream << i + 1 << ": ";
+        size_t j = 0;
+        for (; j < m_adjacencyMatrix.size(); j++) {
+            if (m_adjacencyMatrix[i][j] == 1)
+                stream << j + 1 << ", ";
+        }
+        stream << "\n";
+    }
+    stream << "\n";
 
     file.close();
+}
+
+void Graph::insertCycle(std::vector<int> &cycle) {
+    for (size_t i = 0; i < cycle.size(); i++) {
+        cycle.pop_back();
+        std::rotate(cycle.rbegin(), cycle.rbegin() + 1, cycle.rend());
+        cycle.push_back(cycle[0]);
+        if (m_cycles.find(cycle) != nullptr)
+            return;
+    }
+
+    m_cycles.insert(cycle);
+}
+
+void Graph::generateRandomNodes(int n)
+{
+    QPoint center = {500, 340};
+    int circleRadius = 300;
+    int initialNodesCount = m_nodesCount;
+
+    while (m_nodesCount < initialNodesCount + n) {
+        int angle = QRandomGenerator::global()->bounded(0, 361);
+        QPoint randPos = {int(center.x() + circleRadius*cos(angle)), int(center.y() + circleRadius*sin(angle))};
+        if (!getNodeAt(randPos))
+            addNode(new Node(randPos, m_nodesCount + 1));
+    }
+}
+
+void Graph::generateElementaryPath()
+{
+    int start = 0;
+    std::vector<int> path = {start + 1};
+    std::vector<int> indexes(m_nodesCount - 1);
+    std::iota(indexes.begin(), indexes.end(), 1);
+    std::random_shuffle(indexes.begin(), indexes.end());
+
+    int indexFirstNode = start;
+    for (const auto &indexSecondNode : indexes) {
+        addEdge(Edge(m_nodes[indexFirstNode], m_nodes[indexSecondNode]));
+        path.push_back(indexSecondNode + 1);
+        if (indexSecondNode == m_nodesCount - 1)
+            break;
+        indexFirstNode = indexSecondNode;
+    }
+
+    m_paths.insert(path);
+}
+
+void Graph::generateElementaryPaths(int count)
+{
+    std::size_t initialSize = m_paths.size();
+    while (m_paths.size() < initialSize + std::size_t(count))
+        generateElementaryPath();
+}
+
+void Graph::generateElementaryCycle()
+{
+    std::vector<bool> cycleNodes = std::vector<bool>(m_nodesCount);
+    std::vector<int> indexes(m_nodesCount);
+    std::iota(indexes.begin(), indexes.end(), 0);
+    std::random_shuffle(indexes.begin(), indexes.end());
+    int startPos = QRandomGenerator::global()->bounded(1, m_nodesCount);
+    int start = indexes[startPos];
+    std::vector<int> cycle = {start + 1};
+
+    int indexFirstNode = start;
+    for (int &indexSecondNode : indexes) {
+        addEdge(Edge(m_nodes[indexFirstNode], m_nodes[indexSecondNode]));
+        cycle.push_back(indexSecondNode + 1);
+        if (indexSecondNode == start)
+            break;
+        indexFirstNode = indexSecondNode;
+    }
+
+    insertCycle(cycle);
+}
+
+void Graph::generateElementaryCycles(int count)
+{
+    std::size_t initialSize = m_paths.size();
+    while (m_cycles.size() < initialSize + std::size_t(count)) {
+        generateElementaryCycle();
+    }
 }

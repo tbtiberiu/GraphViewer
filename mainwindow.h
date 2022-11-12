@@ -29,6 +29,16 @@ private slots:
     void on_orientatButton_clicked();
     void on_neorientatButton_clicked();
 
+    void on_nodesSpin_valueChanged(int val);
+    void on_pathsSpin_valueChanged(int val);
+    void on_cyclesSpin_valueChanged(int val);
+
+    void on_nodesButton_clicked();
+    void on_pathsButton_clicked();
+    void on_cyclesButton_clicked();
+
+    void on_saveButton_clicked();
+
 private:
     Graph graph;
     Ui::MainWindow *ui;
@@ -37,4 +47,8 @@ private:
     Node *firstSelectedNode = nullptr;
     Node *selectedNode = nullptr;
     bool mouseMoved = false;
+
+    int n;
+    int nPaths;
+    int nCycles;
 };
