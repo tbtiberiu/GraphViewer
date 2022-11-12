@@ -35,7 +35,7 @@ public:
     void moveNode(Node *node, QPointF pos);
     void updateAdjacencyMatrix();
     void saveChangesToFile(
-        QString filename = "C:\\Users\\tibin\\Documents\\UNITBV\\AG\\GraphViewer2\\AboutMatrix."
+        QString filename = "C:\\Users\\tibin\\Documents\\UNITBV\\AG\\GraphViewer\\AboutMatrix."
                            "txt");
     void insertCycle(std::vector<int> &cycle);
     void generateRandomNodes(int n);
