@@ -3,19 +3,19 @@ Nodes count: 5
 Adjacency matrix:
 0 0 0 0 0 
 0 0 0 0 0 
-0 0 0 0 0 
 0 0 0 0 1 
+0 0 1 0 0 
 0 0 0 1 0 
 
 Paths:
 
 Cycles:
-4, 5, 4
+5, 4, 3, 5
 
 Adjacency list:
 1: 
 2: 
-3: 
-4: 5, 
+3: 5, 
+4: 3, 
 5: 4, 
 

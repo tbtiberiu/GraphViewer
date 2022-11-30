@@ -141,7 +141,7 @@ void Graph::insertCycle(std::vector<int> &cycle) {
         cycle.pop_back();
         std::rotate(cycle.rbegin(), cycle.rbegin() + 1, cycle.rend());
         cycle.push_back(cycle[0]);
-        if (m_cycles.find(cycle) != nullptr)
+        if (m_cycles.find(cycle) != m_cycles.end())
             return;
     }
 
@@ -168,7 +168,9 @@ void Graph::generateElementaryPath()
     std::vector<int> path = {start + 1};
     std::vector<int> indexes(m_nodesCount - 1);
     std::iota(indexes.begin(), indexes.end(), 1);
-    std::random_shuffle(indexes.begin(), indexes.end());
+    std::random_device rd;
+    std::mt19937 g(rd());
+    std::shuffle(indexes.begin(), indexes.end(), g);
 
     int indexFirstNode = start;
     for (const auto &indexSecondNode : indexes) {
@@ -194,7 +196,9 @@ void Graph::generateElementaryCycle()
     std::vector<bool> cycleNodes = std::vector<bool>(m_nodesCount);
     std::vector<int> indexes(m_nodesCount);
     std::iota(indexes.begin(), indexes.end(), 0);
-    std::random_shuffle(indexes.begin(), indexes.end());
+    std::random_device rd;
+    std::mt19937 g(rd());
+    std::shuffle(indexes.begin(), indexes.end(), g);
     int startPos = QRandomGenerator::global()->bounded(1, m_nodesCount);
     int start = indexes[startPos];
     std::vector<int> cycle = {start + 1};
