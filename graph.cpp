@@ -59,9 +59,9 @@ bool Graph::isOriented() const
     return m_oriented;
 }
 
-void Graph::setOrientation(bool orientated)
+void Graph::setOrientation(bool oriented)
 {
-    m_oriented = orientated;
+    m_oriented = oriented;
 }
 
 void Graph::moveNode(Node *node, QPointF pos)

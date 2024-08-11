@@ -1,6 +1,5 @@
 #pragma once
 #include <unordered_set>
-#include <algorithm>
 #include <QFile>
 #include <QTextStream>
 #include "edge.h"
@@ -31,12 +30,10 @@ public:
     std::vector<Edge> getEdges() const;
     bool hasEdge(Edge edge) const;
     bool isOriented() const;
-    void setOrientation(bool orientated);
+    void setOrientation(bool oriented);
     void moveNode(Node *node, QPointF pos);
     void updateAdjacencyMatrix();
-    void saveChangesToFile(
-        QString filename = "C:\\Users\\tibin\\Documents\\UNITBV\\AG\\GraphViewer\\AboutMatrix."
-                           "txt");
+    void saveChangesToFile(QString filename = "AboutMatrix.txt");
     void insertCycle(std::vector<int> &cycle);
     void generateRandomNodes(int n);
     void generateElementaryPath();

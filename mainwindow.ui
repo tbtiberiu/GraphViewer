@@ -30,9 +30,9 @@
       <height>61</height>
      </rect>
     </property>
-    <layout class="QVBoxLayout" name="tipGraf">
+    <layout class="QVBoxLayout" name="graphType">
      <item>
-      <widget class="QRadioButton" name="orientatButton">
+      <widget class="QRadioButton" name="orientedButton">
        <property name="cursor">
         <cursorShape>PointingHandCursor</cursorShape>
        </property>
@@ -40,7 +40,7 @@
         <bool>false</bool>
        </property>
        <property name="text">
-        <string>Orientat</string>
+        <string>Oriented</string>
        </property>
        <property name="checked">
         <bool>true</bool>
@@ -48,7 +48,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QRadioButton" name="neorientatButton">
+      <widget class="QRadioButton" name="nonorientedButton">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
          <horstretch>0</horstretch>
@@ -59,7 +59,7 @@
         <cursorShape>PointingHandCursor</cursorShape>
        </property>
        <property name="text">
-        <string>Neorientat</string>
+        <string>Non-oriented</string>
        </property>
       </widget>
      </item>
@@ -85,7 +85,7 @@
      <item>
       <widget class="QSpinBox" name="pathsSpin">
        <property name="buttonSymbols">
-        <enum>QAbstractSpinBox::NoButtons</enum>
+        <enum>QAbstractSpinBox::ButtonSymbols::NoButtons</enum>
        </property>
        <property name="maximum">
         <number>50</number>
@@ -124,7 +124,7 @@
      <item>
       <widget class="QSpinBox" name="cyclesSpin">
        <property name="buttonSymbols">
-        <enum>QAbstractSpinBox::NoButtons</enum>
+        <enum>QAbstractSpinBox::ButtonSymbols::NoButtons</enum>
        </property>
        <property name="maximum">
         <number>50</number>
@@ -163,7 +163,7 @@
      <item>
       <widget class="QSpinBox" name="nodesSpin">
        <property name="buttonSymbols">
-        <enum>QAbstractSpinBox::NoButtons</enum>
+        <enum>QAbstractSpinBox::ButtonSymbols::NoButtons</enum>
        </property>
        <property name="suffix">
         <string/>
@@ -172,7 +172,7 @@
         <number>50</number>
        </property>
        <property name="stepType">
-        <enum>QAbstractSpinBox::DefaultStepType</enum>
+        <enum>QAbstractSpinBox::StepType::DefaultStepType</enum>
        </property>
       </widget>
      </item>
@@ -217,16 +217,6 @@
      </item>
     </layout>
    </widget>
-  </widget>
-  <widget class="QMenuBar" name="menubar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>1200</width>
-     <height>25</height>
-    </rect>
-   </property>
   </widget>
  </widget>
  <resources>

@@ -9,6 +9,7 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    setupConnections();
 
     bool ok;
     n = QInputDialog::getInt(this, tr("GraphViewer"), tr("Number of nodes:"), 5, 0, 40, 1, &ok);
@@ -139,59 +140,70 @@ void MainWindow::paintEvent(QPaintEvent *)
     paintNodes(p);
 }
 
-void MainWindow::on_orientatButton_clicked()
+void MainWindow::handleOrientedButtonClicked()
 {
     graph.setOrientation(true);
     update();
 }
 
-void MainWindow::on_neorientatButton_clicked()
+void MainWindow::handleNonOrientedButtonClicked()
 {
     graph.setOrientation(false);
     update();
 }
 
-void MainWindow::on_nodesSpin_valueChanged(int val)
+void MainWindow::handleNodesSpinValueChanged(int val)
 {
     n = val;
 }
 
 
-void MainWindow::on_pathsSpin_valueChanged(int val)
+void MainWindow::handlePathsSpinValueChanged(int val)
 {
     nPaths = val;
 }
 
 
-void MainWindow::on_cyclesSpin_valueChanged(int val)
+void MainWindow::handleCyclesSpinValueChanged(int val)
 {
     nCycles = val;
 }
 
 
-void MainWindow::on_nodesButton_clicked()
+void MainWindow::handleNodesButtonClicked()
 {
     graph.generateRandomNodes(n);
     update();
 }
 
 
-void MainWindow::on_pathsButton_clicked()
+void MainWindow::handlePathsButtonClicked()
 {
     graph.generateElementaryPaths(nPaths);
     update();
 }
 
 
-void MainWindow::on_cyclesButton_clicked()
+void MainWindow::handleCyclesButtonClicked()
 {
     graph.generateElementaryCycles(nCycles);
     update();
 }
 
-
-void MainWindow::on_saveButton_clicked()
+void MainWindow::handleSaveButtonClicked()
 {
     graph.saveChangesToFile();
 }
 
+void MainWindow::setupConnections()
+{
+    connect(ui->orientedButton, &QPushButton::clicked, this, &MainWindow::handleOrientedButtonClicked);
+    connect(ui->nonorientedButton, &QPushButton::clicked, this, &MainWindow::handleNonOrientedButtonClicked);
+    connect(ui->nodesSpin, QOverload<int>::of(&QSpinBox::valueChanged), this, &MainWindow::handleNodesSpinValueChanged);
+    connect(ui->pathsSpin, QOverload<int>::of(&QSpinBox::valueChanged), this, &MainWindow::handlePathsSpinValueChanged);
+    connect(ui->cyclesSpin, QOverload<int>::of(&QSpinBox::valueChanged), this, &MainWindow::handleCyclesSpinValueChanged);
+    connect(ui->nodesButton, &QPushButton::clicked, this, &MainWindow::handleNodesButtonClicked);
+    connect(ui->pathsButton, &QPushButton::clicked, this, &MainWindow::handlePathsButtonClicked);
+    connect(ui->cyclesButton, &QPushButton::clicked, this, &MainWindow::handleCyclesButtonClicked);
+    connect(ui->saveButton, &QPushButton::clicked, this, &MainWindow::handleSaveButtonClicked);
+}

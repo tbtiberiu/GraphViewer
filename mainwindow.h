@@ -26,18 +26,21 @@ public:
     ~MainWindow();
 
 private slots:
-    void on_orientatButton_clicked();
-    void on_neorientatButton_clicked();
+    void handleOrientedButtonClicked();
+    void handleNonOrientedButtonClicked();
 
-    void on_nodesSpin_valueChanged(int val);
-    void on_pathsSpin_valueChanged(int val);
-    void on_cyclesSpin_valueChanged(int val);
+    void handleNodesSpinValueChanged(int val);
+    void handlePathsSpinValueChanged(int val);
+    void handleCyclesSpinValueChanged(int val);
 
-    void on_nodesButton_clicked();
-    void on_pathsButton_clicked();
-    void on_cyclesButton_clicked();
+    void handleNodesButtonClicked();
+    void handlePathsButtonClicked();
+    void handleCyclesButtonClicked();
 
-    void on_saveButton_clicked();
+    void handleSaveButtonClicked();
+
+private:
+    void setupConnections();
 
 private:
     Graph graph;
